@@ -1,25 +1,12 @@
 services:
   app:
-    container_name: <서비스명>-app
+    container_name: sandol-classroom-timetable-app
     build: .
     restart: always
     env_file:
       - .env
     ports:
-      - "<호스트포트>:<컨테이너포트>"
-    networks:
-      - sandol-network
-    depends_on:
-      - db
-
-  db:
-    container_name: <서비스명>-db
-    image: postgres:15
-    restart: always
-    env_file:
-      - .env
-    volumes:
-      - db_data:/var/lib/postgresql/data
+      - "80:8080"
     networks:
       - sandol-network
 
