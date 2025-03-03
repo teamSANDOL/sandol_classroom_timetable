@@ -7,38 +7,28 @@
 
 ## 📌 프로젝트 구조  
 - Node.js
-- Express
+  - Express
 
 ---
 
 ## 📌 문서  
-- **(API 문서 링크를 삽입하세요.)**  
-  - 예시: `[API 문서 (Swagger)](링크)`, `[API 문서 (Notion)](링크)`  
-- **(이 Repository에서 제공하는 서비스 관련 문서를 추가하세요.)**  
-  - 예시: `챗봇 명령어 목록`, `웹 서비스 이용 가이드`, `Webhook 사용법` 등  
+- [API 문서 (Notion)](https://dandelion-savory-5fa.notion.site/API-1ab8dd10578380318975fa3240169ece)
 
 ---
 
 ## 📌 환경 설정  
-- **모든 서비스는 Docker 기반으로 실행되므로, 로컬 환경에 별도로 의존하지 않음**  
-- **환경 변수 파일 (`.env`) 필요 시, 샘플 파일 (`.env.example`) 제공**  
-- **Docker Compose를 통해 서비스 간 네트워크 및 볼륨을 설정**  
-- **프론트엔드 서비스(챗봇 서버, 웹 서비스)와 백엔드 서비스(API 서버)의 차이점을 반영하여 개별 실행 가능**  
+- 실행 시 강의 목록이 들어있는 ``/data/lecture_array.json`` 파일 필요 (추후 개선 예정)
 
 ### 📌 실행 방법  
 #### 1. 기본 실행 (모든 서비스 실행)  
 ```bash
 docker compose up -d
 ```
-#### 2. 특정 서비스만 실행 (예: 챗봇 서버)  
-```bash
-docker compose up -d <서비스명>
-```
-#### 3. 서비스 중지  
+#### 2. 서비스 중지  
 ```bash
 docker compose down
 ```
-#### 4. 환경 변수 변경 후 재시작  
+#### 3. 환경 변수 변경 후 재시작  
 ```bash
 docker compose up -d --build
 ```
@@ -55,7 +45,7 @@ docker compose up -d --build
 ---
 
 ## 📌 문의  
-- **(디스코드 채널 링크를 삽입하세요)**    
+- [백엔드/강의실-시간표](https://discord.com/channels/1339452791071969331/1339457161666756658)  
 
 ---
 🚀 **산돌이 프로젝트와 함께 효율적인 개발 환경을 만들어갑시다!**  
