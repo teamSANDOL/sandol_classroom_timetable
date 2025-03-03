@@ -30,7 +30,7 @@ fs.readFile('./data/lecture_array.json', {
     apiRouter.updateLecture(lectures);
 
     // 강의 목록을 불러온 후 API 서버 시작
-    app.listen(8080, () => {
+    app.listen(80, () => {
         console.log('server listening');
     });
 });

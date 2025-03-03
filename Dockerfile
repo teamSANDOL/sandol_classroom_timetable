@@ -16,8 +16,5 @@ COPY . .
 # 환경 변수 설정
 ENV NODE_ENV=production
 
-# 80번 포트 사용
-EXPOSE 80
-
 # 컨테이너 실행 시 기본 명령어 설정
 CMD ["npm", "start"]
