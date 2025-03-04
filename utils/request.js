@@ -96,3 +96,18 @@ function CookieManager(){
     return this;
 }
 
+class RequestAgent{
+    constructor(){
+        this.cookieManager=new CookieManager();
+    }
+    
+    async request(method,url,headers,body){
+        let res=await request(method,url,Object.assign({
+            cookie:this.cookieManager.cookieString(),
+        },headers),body);
+        this.cookieManager.setByRes(res);
+
+        return res;
+    }
+}
+exports.RequestAgent=RequestAgent;
