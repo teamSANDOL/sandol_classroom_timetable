@@ -99,6 +99,7 @@ function CookieManager(){
 class RequestAgent{
     constructor(){
         this.cookieManager=new CookieManager();
+        this.autoRedirect=true;
     }
     
     async request(method,url,headers,body){
@@ -107,6 +108,27 @@ class RequestAgent{
         },headers),body);
         this.cookieManager.setByRes(res);
 
+        while(this.autoRedirect&&res.headers.location!==undefined){
+            const location=res.headers.location;
+            switch(res.status){
+                case 301:
+                case 302:
+                {
+                    res=await request('GET',location,headers);
+                }
+                break;
+                case 307:
+                case 308:
+                {
+                    res=await request(method,location,headers,body);
+                }
+                break;
+                default:
+                    return res;
+            }
+            this.cookieManager.setByRes(res);
+        }
+        
         return res;
     }
 }
