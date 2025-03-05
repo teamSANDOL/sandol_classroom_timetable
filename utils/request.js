@@ -60,38 +60,97 @@ function CookieManager(){
             }
         }
     };
-    this.cookieString=function(hostname){
+    this.cookieString=function(url){
         this.clean();
-        return Array.from(this.cookies).filter(x=>{
-            const domain=x.properties.domain;
-            if(domain===undefined)return false;
-            if(hostname==domain)return true;
-            if(domain[0]=='.'){
-                if(hostname.includes(domain)){
-                    return true;
-                }else if('.'+hostname==domain){
-                    return true;
+        
+        url=new URL(url);
+
+        const cookieMap=new Map();
+        this.cookies.forEach((value,key)=>{
+            const [name,domain,path]=JSON.parse(key);
+
+            // 도메인 일치 여부 판단 로직
+            {
+                let sameDomain=false;
+    
+                // url과 쿠키의 도메인이 같을 시
+                if(url.hostname==domain)sameDomain=true;
+    
+                // 쿠키가 하위 도메인에서도 유효할 때
+                if(domain[0]=='.'){
+    
+                    // url이 쿠키의 도메인으로 끝날 시 유효
+                    if(url.hostname.endsWith(domain))sameDomain=true;
+    
+                    // 하위 도메인이 아닌 url과 비교
+                    else if('.'+url.hostname==domain)sameDomain=true;
                 }
+    
+                // 같은 도메인의 쿠키가 아닐 시 종료
+                if(!sameDomain)return;
             }
-            return false;
-        }).map(x=>x[0]+'='+encodeURIComponent(x[1].value)).join('; ');
+
+            // 경로 일치 여부 판단 로직
+            {
+                let samePath=false;
+
+                // url과 쿠키의 경로가 같을 시
+                if(url.pathname==path)samePath=true;
+
+                let splitedCookiePath=path.split('/');
+                const splitedUrlPath=url.pathname.split('/');
+
+                // 쿠키의 경로가 / 로 끝날 때 끝의 빈 문자열 한개를 제거
+                if(splitedCookiePath.at(-1).length==0)splitedCookiePath=splitedCookiePath.slice(0,-1);
+                
+                // url의 경로가 쿠키의 하위 경로일 때 유효
+                if(splitedCookiePath.every((p,i)=>p==splitedUrlPath[i]))samePath=true;
+    
+                // 같은 경로의 쿠키가 아닐 시 종료
+                if(!samePath)return;
+            }
+            
+            // 같은 이름의 쿠키가 있다면
+            if(cookieMap.has(name)){
+                const [domain,path]=cookieMap.get(name);
+
+                // 쿠키의 도메인이 기존의 도메인보다 짧을 시 종료
+                if(url.hostname.length<domain.length)return;
+
+                // 쿠키의 도메인이 같을 때, 기존의 경로보다 짧을 시 종료
+                if(url.hostname.length==domain.length&&url.pathname.length<path.length)return;
+            }
+
+            cookieMap.set(name,[domain,path]);
+        });
+        return Array.from(cookieMap).map(([name,[domain,path]])=>{
+            const cookie=this.cookies.get(JSON.stringify([name,domain,path]));
+            return name+'='+encodeURIComponent(cookie.value);
+        }).join('; ');
     };
-    this.set=function(str){
+    this.set=function(str,url){
+        url=new URL(url);
         const [[name,value],...properties]=str.split('; ').map(x=>Array.from(new URLSearchParams(x))[0]);
         const o={};
-        properties.forEach(x=>o[x[0]]=x[1]);
+        properties.forEach(x=>o[x[0].toLowerCase()]=x[1]);
         let expireTime=Infinity;
         if(o['expires']!==undefined)expireTime=Math.min(expireTime,new Date(o['expires']).getTime());
-        if(o['Max-Age']!==undefined)expireTime=Math.min(expireTime,new Date(Date.now()+Number(o['Max-Age'])*1000).getTime());
-        this.cookies.set(name,{
+        if(o['max-age']!==undefined)expireTime=Math.min(expireTime,new Date(Date.now()+Number(o['max-age'])*1000).getTime());
+
+        if(o.domain===undefined)o.domain=url.hostname;
+        if(o.path===undefined)o.domain=url.path;
+
+        let cookieKey=JSON.stringify([name,o.domain,o.path]);
+
+        this.cookies.set(cookieKey,{
             value:value,
             properties:o,
             expireTime:expireTime,
         });
         this.clean();
     };
-    this.setByRes=function(res){
-        res.headers?.['set-cookie']?.forEach(x=>this.set(x));
+    this.setByRequest=function(res,url){
+        res.headers?.['set-cookie']?.forEach(x=>this.set(x,url));
     };
     return this;
 }
@@ -104,9 +163,9 @@ class RequestAgent{
     
     async request(method,url,headers,body){
         let res=await request(method,url,Object.assign({
-            cookie:this.cookieManager.cookieString(),
+            cookie:this.cookieManager.cookieString(url),
         },headers),body);
-        this.cookieManager.setByRes(res);
+        this.cookieManager.setByRequest(res,url);
 
         while(this.autoRedirect&&res.headers.location!==undefined){
             const location=res.headers.location;
@@ -114,19 +173,23 @@ class RequestAgent{
                 case 301:
                 case 302:
                 {
-                    res=await request('GET',location,headers);
+                    res=await request('GET',location,Object.assign({
+                        cookie:this.cookieManager.cookieString(location),
+                    },headers));
                 }
                 break;
                 case 307:
                 case 308:
                 {
-                    res=await request(method,location,headers,body);
+                    res=await request(method,location,Object.assign({
+                        cookie:this.cookieManager.cookieString(location),
+                    },headers),body);
                 }
                 break;
                 default:
                     return res;
             }
-            this.cookieManager.setByRes(res);
+            this.cookieManager.setByRequest(res,location);
         }
         
         return res;
