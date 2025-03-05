@@ -5,7 +5,10 @@ const router = express.Router();
 
 let lectures = [];
 
-// 빈 강의실 조회
+/*
+    빈 강의실 조회
+    문서: https://dandelion-savory-5fa.notion.site/1ab8dd10578381cda209d96df2213c8a
+*/
 router.get('/classrooms/empty', (req, res) => {
     res.setHeader('content-type','application/json; charset=utf-8');
 
