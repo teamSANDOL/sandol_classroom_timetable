@@ -4,7 +4,7 @@ const https=require('https');
 const zlib=require('zlib');
 const fs=require('fs');
 
-function request(method,url,headers,body)
+function request(method,url,headers,option={},body)
 {
     return new Promise((resolve,reject)=>
     {
@@ -16,11 +16,13 @@ function request(method,url,headers,body)
             'user-agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36'
         },
         headers);
-        
-        const req=(isHTTP?http:https).request(url,{
+
+        option=Object.assign(option,{
             method,
             headers
-        },res=>
+        });
+        
+        const req=(isHTTP?http:https).request(url,option,res=>
         {
             let data=[];
             res.on('error',reject);
@@ -161,10 +163,10 @@ class RequestAgent{
         this.autoRedirect=true;
     }
     
-    async request(method,url,headers,body){
+    async requestOption(method,url,headers,option,body){
         let res=await request(method,url,Object.assign({
             cookie:this.cookieManager.cookieString(url),
-        },headers),body);
+        },headers),option,body);
         this.cookieManager.setByRequest(res,url);
 
         while(this.autoRedirect&&res.headers.location!==undefined){
@@ -175,7 +177,7 @@ class RequestAgent{
                 {
                     res=await request('GET',location,Object.assign({
                         cookie:this.cookieManager.cookieString(location),
-                    },headers));
+                    },headers),option);
                 }
                 break;
                 case 307:
@@ -183,7 +185,7 @@ class RequestAgent{
                 {
                     res=await request(method,location,Object.assign({
                         cookie:this.cookieManager.cookieString(location),
-                    },headers),body);
+                    },headers),option,body);
                 }
                 break;
                 default:
@@ -193,6 +195,16 @@ class RequestAgent{
         }
         
         return res;
+    }
+
+    async request(method,url,headers,body){
+        return await this.requestOption(method,url,headers,{},body);
+    }
+
+    async requestInsecure(method,url,headers,body){
+        return await this.requestOption(method,url,headers,{
+            insecureHTTPParser:true
+        },body);
     }
 }
 exports.RequestAgent=RequestAgent;
