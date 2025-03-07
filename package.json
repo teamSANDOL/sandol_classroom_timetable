@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/teamSANDOL/sandol_classroom_timetable#readme",
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "fast-xml-parser": "^5.0.8"
   }
 }
