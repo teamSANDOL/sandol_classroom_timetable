@@ -138,7 +138,7 @@ function CookieManager(){
         if(o['max-age']!==undefined)expireTime=Math.min(expireTime,new Date(Date.now()+Number(o['max-age'])*1000).getTime());
 
         if(o.domain===undefined)o.domain=url.hostname;
-        if(o.path===undefined)o.domain=url.path;
+        if(o.path===undefined)o.path=url.pathname;
 
         let cookieKey=JSON.stringify([name,o.domain,o.path]);
 
