@@ -161,23 +161,33 @@ class RequestAgent{
     constructor(){
         this.cookieManager=new CookieManager();
         this.autoRedirect=true;
+
+        this.httpAgent=http.Agent({keepAlive:true});
+        this.httpsAgent=https.Agent({keepAlive:true});
     }
     
     async requestOption(method,url,headers,option,body){
+        const isHTTP=new URL(url).protocol=='http:';
+        const agent=isHTTP?this.httpAgent:this.httpsAgent;
+
         let res=await request(method,url,Object.assign({
             cookie:this.cookieManager.cookieString(url),
-        },headers),option,body);
+        },headers),{agent,...option},body);
         this.cookieManager.setByRequest(res,url);
 
         while(this.autoRedirect&&res.headers.location!==undefined){
             const location=res.headers.location;
+
+            const isHTTP=new URL(location).protocol=='http:';
+            const agent=isHTTP?this.httpAgent:this.httpsAgent;
+            
             switch(res.status){
                 case 301:
                 case 302:
                 {
                     res=await request('GET',location,Object.assign({
                         cookie:this.cookieManager.cookieString(location),
-                    },headers),option);
+                    },headers),{agent,...option});
                 }
                 break;
                 case 307:
@@ -185,7 +195,7 @@ class RequestAgent{
                 {
                     res=await request(method,location,Object.assign({
                         cookie:this.cookieManager.cookieString(location),
-                    },headers),option,body);
+                    },headers),{agent,...option},body);
                 }
                 break;
                 default:
