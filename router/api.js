@@ -35,44 +35,67 @@ router.get('/classrooms/empty', (req, res) => {
         return;
     }
 
-    let time = req.query.time;
+    /*
+        이름이 name인 쿼리 파라미터를 읽어서 시간을 월요일 0시 0분으로부터 몇 분이 지났는지로 파싱하는 함수
+        시간이 잘못된 값이면 응답 예외처리까지 이 함수에서 함
+        파싱을 실패하면 null을 리턴함
+    */
+    function parseTime(name){
+        let time = req.query[name];
 
-    // time 파라미터가 없을 시 예외 처리
-    if(time === undefined) {
-        res.status(400);
-        res.end(JSON.stringify({
-            message: 'time 파라미터는 필수입니다.',
-        }));
-        return;
-    }
-
-    // 시간을 :을 기준으로 시간과 분으로 분리
-    time = time.split(':');
-    if(time.length == 2) {
-        const hour = parseInt(time[0]), minute = parseInt(time[1]);
-        if(!(isNaN(hour) || isNaN(minute))) {
-            // time을 0시 0분으로부터 몇 분이 지났는지로 설정
-            time = hour * 60 + minute;
+        // time 파라미터가 없을 시 예외 처리
+        if(time === undefined) {
+            res.status(400);
+            res.end(JSON.stringify({
+                message: `${name} 파라미터는 필수입니다.`,
+            }));
+            return null;
+        }
+        
+        // 시간을 :을 기준으로 시간과 분으로 분리
+        time = time.split(':');
+        if(time.length == 2) {
+            const hour = parseInt(time[0]), minute = parseInt(time[1]);
+            if(!(isNaN(hour) || isNaN(minute))) {
+                // time을 0시 0분으로부터 몇 분이 지났는지로 설정
+                time = hour * 60 + minute;
+            } else {
+                // 시간에 숫자가 아닌 값이 있으면 예외 처리
+                time = null;
+            }
         } else {
-            // 시간에 숫자가 아닌 값이 있으면 예외 처리
+            // :을 기준으로 분리할 때 시간이 잘못된 형식일 시 예외 처리
             time = null;
         }
-    } else {
-        // :을 기준으로 분리할 때 시간이 잘못된 형식일 시 예외 처리
-        time = null;
+        
+        // 시간이 잘못된 형식일 시 예외 처리
+        if(time === null) {
+            res.status(400);
+            res.end(JSON.stringify({
+                message: `잘못된 ${name} 값`,
+            }));
+            return null;
+        }
+
+        // time을 월요일 0시 0분으로부터 몇 분이 지났는지로 설정
+        time += day * 60 * 24;
+
+        return time;
     }
 
-    // 시간이 잘못된 형식일 시 예외 처리
-    if(time === null) {
+    // start_time과 end_time 쿼리 파라미터를 시간으로 파싱
+    const start_time = parseTime('start_time'),end_time = parseTime('end_time');
+
+    if(start_time===null||end_time===null)return;
+
+    // start_time이 end_time보다 크면 예외 처리
+    if(start_time > end_time){
         res.status(400);
         res.end(JSON.stringify({
-            message: '잘못된 time 값',
+            message: `start_time은 end_time보다 작아야 합니다`,
         }));
         return;
     }
-
-    // time을 월요일 0시 0분으로부터 몇 분이 지났는지로 설정
-    time += day * 60 * 24;
 
     const allRoomsSet = new Set();      // 조회한 건물의 모든 강의실 목록 셋
     const inuseRoomsSet = new Set();    // 현재 사용중인 강의실 목록 셋
@@ -90,7 +113,7 @@ router.get('/classrooms/empty', (req, res) => {
                 allRoomsSet.add(lectureTime.place);
 
                 // 해당 강의의 시간이 조회한 시간 중에 수업한다면 강의실의 이름(lectureTime.place)만을 사용중인 강의실 목록에 추가
-                if(lectureTime.timeStart <= time && time < lectureTime.timeEnd) {
+                if(!((lectureTime.timeStart < start_time && lectureTime.timeEnd < start_time) || (lectureTime.timeStart > end_time && lectureTime.timeEnd > end_time))) {
                     inuseRoomsSet.add(lectureTime.place);
                 }
             }
