@@ -27,19 +27,19 @@ function parseNexacro(str){
         parameters[id]=value;
     });
 
-    const dataset=root.Dataset?.[0].Rows[0].Row.map(row=>{
-        const result={};
-        row.Col.forEach(col=>{
-            const id=col['@id'][0];
-            let value=col['#text'];
-            result[id]=value;
-        });
-        return result;
-    });
+    const dataset={parameters};
+    root.Dataset?.forEach(ds=>
+        dataset[ds['@id']]=ds.Rows[0].Row.map(row=>{
+            const result={};
+            row.Col.forEach(col=>{
+                const id=col['@id'][0];
+                let value=col['#text'];
+                result[id]=value;
+            });
+            return result;
+        })
+    );
 
-    return {
-        parameters,
-        data:dataset,
-    };
+    return dataset;
 }
 exports.parseNexacro=parseNexacro;
