@@ -125,7 +125,7 @@ function getEmptyClassrooms(building,day,start_time,end_time){
         return [
             {
                 building:building,
-                empty_classrooms:emptyRoomList.map(room=>room.slice(buildings.find(building=>room.startsWith(building)).length)),
+                empty_classrooms:emptyRoomList.map(room=>room.slice(buildings.find(building=>room.startsWith(building)).length)).sort(),
             }
         ];
     }
