@@ -10,10 +10,12 @@ const buildingInfo=parseBuildings(fs.readFileSync('./data/buildings.csv',{encodi
 
 let lectures = [];
 
+// buildings.csv에 있는 모든 건물명을 반환하는 함수
 function getAllBuildingName(){
     return buildingInfo.map(info=>info.name);
 }
 
+// 조회한 건물과 조회한 보조 건물명을 가진 모든 건물을 반환하는 함수
 function getBuildingNames(name){
     const result=[];
     if(buildingInfo.find(info=>info.name==name)!==undefined)result.push(name);
@@ -21,6 +23,7 @@ function getBuildingNames(name){
     return result;
 }
 
+// 조회한 보조 건물명을 가진 모든 건물을 반환하는 함수
 function getBuildingNamesByAlias(alias){
     return buildingInfo.filter(info=>info.aliases.includes(alias)).map(info=>info.name);
 }
@@ -107,21 +110,28 @@ function getEmptyClassrooms(building,day,start_time,end_time){
     */
     const emptyRoomList=Array.from(allRoomsSet).filter(room => !inuseRoomsSet.has(room));
     
-    
+    // 모든 건물에서 조회할 시
     if(building===null){
         const buildingObj={};
         const buildingNames=getAllBuildingName();
         
         emptyRoomList.forEach(room=>{
+
+            // 모든 건물 이름 목록에서 현재 강의실(room)에 해당하는 건물 이름 찾기
             const name=buildingNames.find(name=>room.startsWith(name));
+
+            // 건물 이름 목록에 없는 강의실이면 반환하지 않음
             if(name===undefined)return;
     
             if(buildingObj[name]===undefined)buildingObj[name]=[];
+
+            // 강의실 이름에서 건물 이름을 제거
             buildingObj[name].push(room.slice(name.length));
         });
         
         return Object.entries(buildingObj).map(([building,empty_classrooms])=>({building,empty_classrooms:empty_classrooms.sort()}));
     }else{
+        // 특정 건물에서 조회할 시
         return [
             {
                 building:building,
@@ -132,7 +142,7 @@ function getEmptyClassrooms(building,day,start_time,end_time){
 }
 
 /*
-    빈 강의실 조회
+    시간 기반 빈 강의실 조회
     문서: https://dandelion-savory-5fa.notion.site/1ab8dd10578381cda209d96df2213c8a
 */
 router.get('/classrooms/available/time', (req, res) => {
@@ -182,6 +192,10 @@ router.get('/classrooms/available/time', (req, res) => {
     res.end(JSON.stringify(result));
 });
 
+/*
+    N교시 기반 빈 강의실 조회
+    문서: https://dandelion-savory-5fa.notion.site/N-1bc8dd105783804fae11ef3a3c28a7a8
+*/
 router.get('/classrooms/available/periods', (req, res) => {
     res.setHeader('content-type','application/json; charset=utf-8');
 
@@ -209,6 +223,7 @@ router.get('/classrooms/available/periods', (req, res) => {
         return;
     }
 
+    // N교시를 시간으로 변환
     start_time=[
         '09:30','10:30','11:30','12:30','13:30','14:30','15:30','16:30','17:25','18:15','19:05','20:00','20:50','21:40'
     ][
