@@ -276,6 +276,12 @@ router.get('/classrooms/available/periods', (req, res) => {
     res.end(JSON.stringify(result));
 });
 
+router.get('/health', (req, res) => {
+    res.status(200).json({
+        status:'ok'
+    });
+});
+
 // 강의 목록을 업데이트 하는 함수
 function updateLecture(newLectures) {
     lectures = newLectures;
