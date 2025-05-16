@@ -15,7 +15,7 @@ app.get('/', (req, res) => {
 // 강의실 시간표 API Router
 const apiRouter = require('./router/api');
 
-app.use('/api', apiRouter.router);
+app.use('/classroom-timetable', apiRouter.router);
 
 
 // 강의 목록 불러오기
