@@ -23,10 +23,12 @@ fs.readFile('./data/lecture_array.json', {
     encoding:'utf8'
 }, (err, data) => {
     if(err !== null) {
-        throw err;
+        // 강의 목록 파일 로드 실패 시 강의 목록을 비운 상태로 시작
+        lectures = [];
+    } else {
+        lectures = JSON.parse(data);
     }
-
-    lectures = JSON.parse(data);
+    
     apiRouter.updateLecture(lectures);
 
     // 강의 목록을 불러온 후 API 서버 시작
