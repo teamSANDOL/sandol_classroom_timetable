@@ -1,6 +1,6 @@
 {
   "name": "sandol_classroom_timetable",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "한국공학대학교 강의실 시간표에 대한 정보를 제공하는 API 서버입니다.",
   "main": "index.js",
   "scripts": {
