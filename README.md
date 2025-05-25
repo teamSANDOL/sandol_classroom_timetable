@@ -12,7 +12,7 @@
 ---
 
 ## 📌 문서  
-- [API 문서 (Notion)](https://dandelion-savory-5fa.notion.site/API-1ab8dd10578380318975fa3240169ece)
+- [API 문서 (Notion)](https://dandelion-savory-5fa.notion.site/1fb8dd1057838116ae48ec9369f815ae?v=1fb8dd10578381239574000c83b8c137&pvs=4)
 
 ---
 
