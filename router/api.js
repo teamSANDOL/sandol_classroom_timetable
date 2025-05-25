@@ -143,7 +143,7 @@ function getEmptyClassrooms(building,day,start_time,end_time){
 
 /*
     시간 기반 빈 강의실 조회
-    문서: https://dandelion-savory-5fa.notion.site/1ab8dd10578381cda209d96df2213c8a
+    문서: https://dandelion-savory-5fa.notion.site/1fb8dd105783813ca1eac9ff425bfdc1
 */
 router.get('/classrooms/available/time', (req, res) => {
     res.setHeader('content-type','application/json; charset=utf-8');
@@ -194,7 +194,7 @@ router.get('/classrooms/available/time', (req, res) => {
 
 /*
     N교시 기반 빈 강의실 조회
-    문서: https://dandelion-savory-5fa.notion.site/N-1bc8dd105783804fae11ef3a3c28a7a8
+    문서: https://dandelion-savory-5fa.notion.site/N-1fe8dd10578380e7b4c6ced72510fd5e
 */
 router.get('/classrooms/available/periods', (req, res) => {
     res.setHeader('content-type','application/json; charset=utf-8');
