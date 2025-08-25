@@ -297,9 +297,12 @@ router.get('/classrooms', (req, res) => {
             }
         });
     });
-    const result={};
+    const result=[];
     buildingMap.forEach((classroomSet,buildingName)=>{
-        result[buildingName]=Array.from(classroomSet);
+        result.push({
+            building:buildingName,
+            classrooms:Array.from(classroomSet),
+        });
     });
     res.end(JSON.stringify(result));
 });
