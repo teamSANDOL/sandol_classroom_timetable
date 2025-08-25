@@ -307,6 +307,40 @@ router.get('/classrooms', (req, res) => {
     res.end(JSON.stringify(result));
 });
 
+router.get('/classrooms/timetable', (req, res) => {
+    res.setHeader('content-type','application/json; charset=utf-8');
+
+    const place = req.query.place;
+    const day = req.query.day;
+
+    const dayIndex = ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'].indexOf(day);
+
+    const dayShort=[null,'월','화','수','목','금','토','일'][dayIndex+1];
+
+    let result=[];
+
+    lectures.forEach(lecture=>{
+        lecture.times.forEach(lectureTime=>{
+            if(lectureTime.place==place){
+                if(dayShort!==null&&dayShort!=lectureTime.day)return;
+                result.push({
+                    id:lecture.id,
+                    cs:lecture.cs,
+                    div:lecture.div,
+                    prof:lecture.prof,
+                    day:lectureTime.day,
+                    startTime:lectureTime.timeStart%(60*24),
+                    endTime:lectureTime.timeEnd%(60*24),
+                    periodStart:lectureTime.periodStart,
+                    periodEnd:lectureTime.periodEnd,
+                });
+            }
+        });
+    });
+
+    res.end(JSON.stringify(result));
+});
+
 router.get('/health', (req, res) => {
     res.status(200).json({
         status:'ok'
