@@ -276,6 +276,34 @@ router.get('/classrooms/available/periods', (req, res) => {
     res.end(JSON.stringify(result));
 });
 
+router.get('/classrooms', (req, res) => {
+    res.setHeader('content-type','application/json; charset=utf-8');
+
+    const buildings=getAllBuildingName();
+
+    const buildingMap=new Map();
+    lectures.forEach(lecture=>{
+        lecture.times.forEach(lectureTime=>{
+            const place=lectureTime.place;
+            const buildingName=buildings.find(building=>place.startsWith(building));
+            if(buildingName!==undefined){
+                const classroom=place.slice(buildingName.length);
+                let classroomSet=buildingMap.get(buildingName);
+                if(classroomSet===undefined){
+                    classroomSet=new Set();
+                    buildingMap.set(buildingName,classroomSet);
+                }
+                classroomSet.add(classroom);
+            }
+        });
+    });
+    const result={};
+    buildingMap.forEach((classroomSet,buildingName)=>{
+        result[buildingName]=Array.from(classroomSet);
+    });
+    res.end(JSON.stringify(result));
+});
+
 router.get('/health', (req, res) => {
     res.status(200).json({
         status:'ok'
