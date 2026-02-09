@@ -1,3 +1,4 @@
 /node_modules
 
 /data/lecture_array.json
+.env
