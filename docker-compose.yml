@@ -5,6 +5,9 @@ services:
     restart: always
     env_file:
       - .env
+    volumes:
+      - ./data/lecture_array.json:/app/data/lecture_array.json:ro
+      - ./data/buildings.csv:/app/data/buildings.csv:ro
     networks:
       - sandol-network
 
