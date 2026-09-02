@@ -47,7 +47,9 @@ docker compose up -d --build
 **사용법**
 1. 통합정보시스템에서 출력한 xls혹은 xlsx 시간표 파일을 프로젝트 루트에 놓기
 2.
-  ``` node scripts/convert-timetable.js <입력파일.xls>```
+  ```bash
+   node scripts/convert-timetable.js <입력파일.xls>
+  ```
 
   로 실행 후 data폴더에서 lecture_array.json 파일 확인
 
