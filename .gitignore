@@ -1,3 +1,5 @@
 /node_modules
 
-/data/lecture_array.json
+#/data/lecture_array.json
+/.vscode/settings.json
+*.xls
