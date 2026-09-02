@@ -40,3 +40,12 @@ docker compose up -d --build
 
 ## 📌 문의  
 - [백엔드/강의실-시간표](https://discord.com/channels/1339452791071969331/1339457161666756658)
+
+## 📌 xls파일 json으로 변환
+- scripts 폴더에 있는 convert-timetable.js파일을 이용하면 xls -> json 으로 변환가능
+
+**사용법**
+1. 통합정보시스템에서 출력한 xls혹은 xlsx 시간표 파일을 프로젝트 루트에 놓기
+2. ``` node scripts/convert-timetable.js <입력파일.xls>``` 로 실행 후 data폴더에서 lecture_array.json 파일 확인
+
++) 혹시 node변환이 안되면 npm install 다시 시도

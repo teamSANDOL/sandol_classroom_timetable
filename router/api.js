@@ -49,9 +49,19 @@ function getEmptyClassrooms(building,day,start_time,end_time){
         파싱을 실패하면 null을 리턴함
     */
     function parseTime(time){
+
+        if(typeof time === 'string' && time.trim().startsWith('{')){
+            try{
+                const parsed = JSON.parse(time);
+                if(typeof parsed.value === 'string') time = parsed.value;
+            }catch(e){
+                // 파싱 실패하면 원래 값 그대로 두고, 아래 형식 검사에서 잘못된 시간 값으로 처리됨
+            }
+        }
         // 시간을 :을 기준으로 시간과 분으로 분리
         time = time.split(':');
-        if(time.length == 2) {
+        
+        if(time.length == 2 || time.length == 3) {
             const hour = parseInt(time[0]), minute = parseInt(time[1]);
             if(!(isNaN(hour) || isNaN(minute))) {
                 // time을 0시 0분으로부터 몇 분이 지났는지로 설정
